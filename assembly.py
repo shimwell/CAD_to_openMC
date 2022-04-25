@@ -6,7 +6,7 @@ from collections.abc import Iterable
 import pathlib as pl
 from typing import List, Optional, Tuple, Union
 
-from paramak import Shapes
+#from paramak import Shapes
 import meshio
 import trimesh
 
@@ -329,18 +329,17 @@ class Assembly:
                 key_and_part_id = {key: val for key, val in key_and_part_id.items() if val != name_to_remove}
 
         brep_to_h5m(
-            brep_filename=tmp_brep_filename,
-            volumes_with_tags=key_and_part_id,
-            h5m_filename=filename,
-            min_mesh_size=min_mesh_size,
-            max_mesh_size=max_mesh_size,
-            delete_intermediate_stl_files=True,
-        )
+            brep_filename=tmp_brep_filename, volumes_with_tags=key_and_part_id,
+            h5m_filename=filename, min_mesh_size=min_mesh_size, max_mesh_size=max_mesh_size,
+            delete_intermediate_stl_files=True)
 
         # temporary brep is deleted
         os.remove(tmp_brep_filename)
 
         return filename
+
+    def brep_to_h5m(brep_filename, volumes_with_tags=None, h5m_filename="dagmc.h5m", min_mesh_size=0.1, max_mesh_size=1.0,delete_intermediate_stl_files=False):
+                
 
 
     def tag_geometry_with_mats(volumes,implicit_complement_material_tag,graveyard, default_tag='vacuum'):
@@ -604,3 +603,61 @@ class Assembly:
         """Import geometry to the shape list through ocp/occt from the
            given filename"""
          
+
+
+
+class AssemblyMesh:
+    def __init__(self,mesh_type='gmsh')
+        self.mesh_t=mesh_type
+        self.mesh = AssemblyMesh_gmsh()
+
+    def generate_mesh(self,kwargs):
+        self.mesh.generate_mesh(self.mesh, kwargs)
+
+
+class AssemblyMesh_gmsh:
+    def __init_(brep_fn="gemetry.brep",samples=20, min_mesh_size=0.1, max_mesh_size=10,volumes_with_tags=None):
+        gmsh.initialize()
+        gmsh.option.setNumber("General.Terminal",1)
+        gmsh.model.add(f"model from Assembly.py {self.brep_fn}")
+        gmsh.option.setString("Geometry.OCCTargetUnit","M")
+        #do this by means of properties instead
+        if(threads is not None):
+           gmsh.option.setNumber("General.NumThreads",threads)
+        self.volumes = gmsh.model.occ.importShapes(brep_filename)
+        gmsh.model.occ.synchronize()
+        if volumes_with_tags is None:
+            self.volumes_with_tags
+    def set_graveyard(self,graveyard_side=100, graveyard_radius=None, division=2):
+        """Method sets up a graveyard box and a rough mesh_field there"""
+        gs=graveyard_side/2.0
+        final_volume_number=self.volumes[-1][1]
+        gmsh.model.occ.addBox(-gs,-gs,-gs,2*gs,2*gs,2*gs,final_volume_number+2)
+        gmsh.model.occ.addBox(-gs-2.5,-gs-2.5,-gs-2.5,2*gs+5.,2*gs+5.,2*gs+5.,final_volume_number+3)
+        gy_tag=gmsh.model.occ.cut([(3,final_volume_number+3)],[(3,final_volume_number+2)],final_volume_number+1)
+        gmsh.model.occ.synchronize()
+        self.graveyard_size=graveyard_side;
+        self.volumes=gmsh.model.getEntities(3)
+        self._set_graveyard_box_field()
+
+    def _set_graveyard_box_field(self,division=2,field=0)
+        """set the mesh size field close (and outside) to the graveyard to something coarse(r)"""
+        gmsh.model.mesh.field.add("Box",field)
+        gmsh.model.mesh.field.setNumber(field,"VIn",10)
+        gmsh.model.mesh.field.setNumber(field,"VOut",self.graveyard_size/divisions)
+        
+        gmsh.model.mesh.field.setNumber(field,"XMin",-(self.graveyard_size*0.99)/2.0)
+        gmsh.model.mesh.field.setNumber(field,"XMax", (self.graveyard_size*0.99)/2.0)
+        gmsh.model.mesh.field.setNumber(field,"YMin",-(self.graveyard_size*0.99)/2.0)
+        gmsh.model.mesh.field.setNumber(field,"YMax", (self.graveyard_size*0.99)/2.0)
+        gmsh.model.mesh.field.setNumber(field,"ZMin",-(self.graveyard_size*0.99)/2.0)
+        gmsh.model.mesh.field.setNumber(field,"ZMax", (self.graveyard_size*0.99)/2.0)
+        return field
+
+    
+    
+        
+    def generate_mesh():
+    
+
+
