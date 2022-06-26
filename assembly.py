@@ -97,6 +97,8 @@ class Assembly:
 
     def import_stp_files(self,tags:dict=None,default_tag:str='vacuum', scale=1.0):
         tags_set=0
+        #clear list to avoid double-import
+        self.entities=[]
 
         for stp in self.stp_files:
             solid = self.load_stp_file(stp,scale)
@@ -139,20 +141,23 @@ class Assembly:
                     vid=v[1]
                     try:
                         s=gmsh.model.getEntityName(3,vid)
+                        part=s.split('/')[-1]
                         tag=None
                         for k in tags.keys():
-                            g=re.match(k,s)
+                            #print(f'matching {k} against {part}')
+                            g=re.match(k,part)
                             if (g):
                                 tag=tags[k]
                                 break
                         if tag is None:
                             tag=self.default_tag
+                        else:
+                            tags_set=tags_set+1
                         if(self.verbose>1):
                             print(f"INFO: Tagging volume #{vid} label:{s} with material {tag}")
                     except:
                         tag=default_tag
                     e.tag=tag
-                    tags_set=tags_set+1
                 gmsh.finalize()
 
             self.entities.extend(ents)
@@ -415,7 +420,7 @@ class Assembly:
         """function that export the list of stls that we have presumably generated somehow
         and merges them into a DAGMC h5m-file by means of the MOAB-framework.
         """
-        
+
         if(self.verbose>0):
             print("INFO: reassembling stl-files into h5m structure")
         h5m_p=pl.Path(h5m_file)
