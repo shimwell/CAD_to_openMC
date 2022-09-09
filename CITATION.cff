@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Knudsen"
+  given-names: "Erik"
+title: "CAD to OpenMC - code to target the conversion from a step-file to a h5m-geometry for neutronics."
+version: 0.1.0
+date-released: 2022-9-9
+url: "https://github.com/openmsr/CAD_to_openMC"
